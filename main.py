@@ -6,7 +6,7 @@ from flask import Flask, request, make_response, send_from_directory
 
 app = Flask(__name__)
 
-@app.route("/fixity/<int:mdatetime>/<path:urir>", strict_slashes=False)
+@app.route("/fixity/<int:mdatetime>/<path:urir>")
 def fixity(mdatetime, urir):
     qs = request.query_string.decode()
     if qs != '':
