@@ -12,8 +12,8 @@ def fixity(mdatetime, urir):
     if qs != '':
         urir += '?' + qs
     urirh = hashlib.md5(urir.encode()).hexdigest()
-    print(f"Retrieving {mdatetime}/{urirh}.json for {urir}")
-    resp = make_response(send_from_directory("manifests", f"{mdatetime}/{urirh}.json"))
+    print(f"Retrieving {urirh}-{mdatetime}.json for {urir}")
+    resp = make_response(send_from_directory("manifests", f"{urirh}-{mdatetime}.json"))
     resp.headers["Content-Type"] = "application/json"
     return resp
 
