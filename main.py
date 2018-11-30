@@ -15,7 +15,8 @@ def fixity(mdatetime, urir):
     print(f"Retrieving {urirh}-{mdatetime}.json for {urir}")
     resp = make_response(send_from_directory("manifests", f"{urirh}-{mdatetime}.json"))
     resp.headers["Content-Type"] = "application/json"
-    resp.add_etag()
+    resp.direct_passthrough = False
+    resp.add_etag(True)
     return resp
 
 if __name__ == "__main__":
