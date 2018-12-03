@@ -27,9 +27,10 @@ def fixity(mfh, mfdt, urim):
     if qs != '':
         urim += '?' + qs
     urimh = hashlib.md5(urim.encode()).hexdigest()
+    print(f"Requested => (MD5:{urimh}, Time: {mfdt}) {urim}")
     if mfh:
         fpath = f"{urimh}/{mfdt}-{mfh}.json"
-        print(f"Retrieving {fpath} for {urim}")
+        print(f"Retrieving {fpath}")
         resp = make_response(send_from_directory(MFDIR, fpath))
         resp.set_etag(mfh)
         return resp
@@ -42,7 +43,9 @@ def fixity(mfh, mfdt, urim):
             pmf = mf
             break
     mfdt, mfh, _ = re.split("\W", pmf)
-    return redirect(f"/fixity/{mfdt}/{mfh}/{urim}")
+    loc = f"/fixity/{mfdt}/{mfh}/{urim}"
+    print(f"Redirecting to {loc}")
+    return redirect(loc)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="5000")
