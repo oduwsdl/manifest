@@ -22,7 +22,7 @@ app.url_map.converters['regex'] = RegexConverter
 
 
 @app.route("/")
-def api_root(arg):
+def api_root():
     api = """
     GET /manifest/<uri-m>
     GET /manifest/<negotiable-partial-14-digit-manifest-datetime>/<uri-m>
