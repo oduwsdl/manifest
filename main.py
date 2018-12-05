@@ -23,11 +23,9 @@ app.url_map.converters['regex'] = RegexConverter
 
 @app.route("/")
 def api_root():
-    api = """
-    GET /manifest/<uri-m>
-    GET /manifest/<negotiable-partial-14-digit-manifest-datetime>/<uri-m>
-    GET /manifest/<exact-14-digit-manifest-datetime>/<sha256-manifest-digest>/<uri-m>
-    """
+    api = ("GET /manifest/<uri-m>\n"
+           "GET /manifest/<negotiable-partial-14-digit-manifest-datetime>/<uri-m>\n"
+           "GET /manifest/<exact-14-digit-manifest-datetime>/<sha256-manifest-digest>/<uri-m>\n")
     return Response(api, mimetype="text/plain")
 
 
