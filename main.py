@@ -5,12 +5,13 @@ import hashlib
 import os
 import re
 
-from flask import Flask, request, make_response, send_from_directory, redirect, abort
+from flask import Flask, Response, request, make_response, send_from_directory, redirect, abort
 from werkzeug.routing import BaseConverter
 
 app = Flask(__name__)
 
 MFDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "manifests")
+
 
 class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
@@ -18,6 +19,17 @@ class RegexConverter(BaseConverter):
         self.regex = items[0]
 
 app.url_map.converters['regex'] = RegexConverter
+
+
+@app.route("/")
+def api_root(arg):
+    api = """
+    GET /manifest/<uri-m>
+    GET /manifest/<negotiable-partial-14-digit-manifest-datetime>/<uri-m>
+    GET /manifest/<exact-14-digit-manifest-datetime>/<sha256-manifest-digest>/<uri-m>
+    """
+    return Response(api, mimetype="text/plain")
+
 
 @app.route("/manifest/<path:urim>", defaults={"mfdt": "9"*14, "mfh": ""})
 @app.route("/manifest/<regex('(\d{2}){2,7}'):mfdt>/<path:urim>", defaults={"mfh": ""})
