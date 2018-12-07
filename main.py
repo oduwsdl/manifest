@@ -55,7 +55,9 @@ def fixity(mfh, mfdt, urim):
     mfdt, mfh, _ = re.split("\W", pmf)
     loc = f"/manifest/{mfdt}/{mfh}/{urim}"
     print(f"Redirecting to {loc}")
-    return redirect(loc)
+    res = redirect(loc)
+    res.autocorrect_location_header = False
+    return res
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="5000")
