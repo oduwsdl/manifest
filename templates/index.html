@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Archival Fixity Blocks</title>
+    <style media="screen">
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      a {
+        color: #17a2b8;
+      }
+      #wrapper {
+        max-width: 800px;
+        min-height: calc(100vh - 110px);
+        margin: 0 auto;
+        padding: 10px;
+        font-family: monospace;
+      }
+      h1.branding {
+        background: #000;
+        color: #fff;
+        font-size: 40px;
+        line-height: 50px;
+        padding: 5px;
+        margin: 0;
+        text-align: center;
+      }
+      footer {
+        text-align: center;
+        background: #000;
+        color: #fff;
+        padding: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 class="branding">Archival Fixity Blocks</h1>
+    <div id="wrapper">
+      <ul>
+        {%- for blk in blks %}
+        <li><a href="/blocks/{{ blk['id'] }}">[{{ blk['dttm'] }}] {{ blk['hash'] }}</a></li>
+        {%- endfor %}
+      </ul>
+    </div>
+
+    <footer>Archival Fixity Blocks by <a href="https://ws-dl.cs.odu.edu/">Web Science and Digital Libraries Research Group</a> in the <a href="https://odu.edu/compsci">Department of Computer Science</a> at <a href="https://odu.edu/">Old Dominion University</a></footer>
+  </body>
+</html>
