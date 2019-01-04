@@ -23,9 +23,14 @@ app.url_map.converters['regex'] = RegexConverter
 
 
 @app.route("/")
-def api_root():
+def block_index():
     blkfs = sorted([os.path.basename(f) for f in glob.glob(f"{BLKDIR}/*.ors.gz")])
     return render_template("index.html", blks=[{"id": bl, "dttm": bl.split('-')[0], "hash": bl.split('.')[0].split('-')[-1]} for bl in blkfs])
+
+
+@app.route("/blocks/<blkid>")
+def serve_blocks(blkid):
+    return send_from_directory(BLKDIR, blkid)
 
 
 @app.route("/manifest/<path:urim>", defaults={"mfdt": "9"*14, "mfh": ""})
