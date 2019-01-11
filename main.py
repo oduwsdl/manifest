@@ -13,6 +13,7 @@ app = Flask(__name__)
 MFDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "manifests")
 BLKDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "blocks")
 BLKFILE = re.compile("^(?P<dttm>\d{14})-(?P<prev>[a-f0-9]{64})-(?P<crnt>[a-f0-9]{64}).ukvs.gz$")
+PROXY = os.getenv("MANIFESTHOST", "http://localhost").strip("/")
 
 class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
@@ -22,13 +23,6 @@ class RegexConverter(BaseConverter):
 app.url_map.converters['regex'] = RegexConverter
 
 
-@app.route("/")
-def block_index():
-    blkfs = sorted([os.path.basename(f) for f in glob.glob(f"{BLKDIR}/*.ukvs.gz")], reverse=True)
-    return render_template("index.html", blks=[{"id": bl, "dttm": bl.split('-')[0], "hash": bl.split('.')[0].split('-')[-1]} for bl in blkfs])
-
-
-@app.route("/blocks", strict_slashes=False)
 def latest_block():
     ldttm = ""
     lblkid = ""
@@ -38,10 +32,39 @@ def latest_block():
             if parts and parts["dttm"] > ldttm:
                 ldttm = parts["dttm"]
                 lblkid = parts["crnt"]
+    return lblkid
+
+
+def block_links(blkid):
+    navs = {"self": blkid}
+    blkp = glob.glob(f"{BLKDIR}/{'[0-9]'*14}-{'?'*64}-{blkid}.ukvs.gz")
+    if blkp:
+        prev = os.path.basename(blkp[0]).split(".")[0].split("-")[1]
+        if prev != "0" * 64:
+            navs["prev"] = prev
+    blkp = glob.glob(f"{BLKDIR}/{'[0-9]'*14}-{blkid}-{'?'*64}.ukvs.gz")
+    if blkp:
+        navs["next"] = os.path.basename(crntblk[0]).split(".")[0].split("-")[-1]
+    blkp = glob.glob(f"{BLKDIR}/{'[0-9]'*14}-{'0'*64}-{'?'*64}.ukvs.gz")
+    if blkp:
+        navs["first"] = os.path.basename(crntblk[0]).split(".")[0].split("-")[-1]
+    lblkid = latest_block()
     if lblkid:
-        res = redirect(f"/blocks/{lblkid}.ukvs.gz")
-        res.autocorrect_location_header = False
-        return res
+        navs["last"] = lblkid
+    return ", ".join([f'{PROXY}/blocks/<{v}.ukvs.gz>; rel="{k}"' for k, v in navs.items()])
+
+
+@app.route("/")
+def serve_block_index():
+    blkfs = sorted([os.path.basename(f) for f in glob.glob(f"{BLKDIR}/*.ukvs.gz")], reverse=True)
+    return render_template("index.html", blks=[{"id": bl, "dttm": bl.split('-')[0], "hash": bl.split('.')[0].split('-')[-1]} for bl in blkfs])
+
+
+@app.route("/blocks", strict_slashes=False)
+def serve_latest_block():
+    lblkid = latest_block()
+    if lblkid:
+        return redirect(f"{PROXY}/blocks/{lblkid}.ukvs.gz")
     abort(404)
 
 
@@ -53,6 +76,7 @@ def serve_block(blkid):
         resp = make_response(send_from_directory(BLKDIR, crntblkf))
         resp.headers["Content-Type"] = "application/ukvs"
         resp.headers["Content-Encoding"] = "gzip"
+        resp.headers["Link"] = block_links(blkid)
         resp.set_etag(blkid)
         return resp
     abort(404)
@@ -82,11 +106,9 @@ def fixity(mfh, mfdt, urim):
             pmf = mf
             break
     mfdt, mfh, _ = re.split("\W", pmf)
-    loc = f"/manifest/{mfdt}/{mfh}/{urim}"
+    loc = f"{PROXY}/manifest/{mfdt}/{mfh}/{urim}"
     print(f"Redirecting to {loc}")
-    res = redirect(loc)
-    res.autocorrect_location_header = False
-    return res
+    return redirect(loc)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="5000")
