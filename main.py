@@ -51,7 +51,7 @@ def block_links(blkid):
     lblkid = latest_block()
     if lblkid:
         navs["last"] = lblkid
-    return ", ".join([f'{PROXY}/blocks/<{v}.ukvs.gz>; rel="{k}"' for k, v in navs.items()])
+    return ", ".join([f'<{PROXY}/blocks/{v}.ukvs.gz>; rel="{k}"' for k, v in navs.items()])
 
 
 @app.route("/")
