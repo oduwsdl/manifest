@@ -13,7 +13,7 @@ app = Flask(__name__)
 MFDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "manifests")
 BLKDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "blocks")
 BLKFILE = re.compile("^(?P<dttm>\d{14})-(?P<prev>[a-f0-9]{64})-(?P<crnt>[a-f0-9]{64}).ukvs.gz$")
-PROXY = os.getenv("MANIFESTHOST", "http://localhost").strip("/")
+PROXY = os.getenv("MANIFESTHOST", "http://localhost").strip(" \t\"'/")
 
 class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
@@ -51,7 +51,7 @@ def block_links(blkid):
     lblkid = latest_block()
     if lblkid:
         navs["last"] = lblkid
-    return ", ".join([f'<{PROXY}/blocks/{v}.ukvs.gz>; rel="{k}"' for k, v in navs.items()])
+    return ", ".join([f'<{PROXY}/blocks/{v}>; rel="{k}"' for k, v in navs.items()])
 
 
 @app.route("/")
@@ -64,11 +64,11 @@ def serve_block_index():
 def serve_latest_block():
     lblkid = latest_block()
     if lblkid:
-        return redirect(f"{PROXY}/blocks/{lblkid}.ukvs.gz")
+        return redirect(f"{PROXY}/blocks/{lblkid}")
     abort(404)
 
 
-@app.route("/blocks/<blkid>.ukvs.gz")
+@app.route("/blocks/<blkid>")
 def serve_block(blkid):
     blkp = glob.glob(f"{BLKDIR}/{'[0-9]'*14}-{'?'*64}-{blkid}.ukvs.gz")
     if blkp:
@@ -76,6 +76,8 @@ def serve_block(blkid):
         resp = make_response(send_from_directory(BLKDIR, crntblkf))
         resp.headers["Content-Type"] = "application/ukvs"
         resp.headers["Content-Encoding"] = "gzip"
+        resp.headers["Content-Disposition"] = f'attachment; filename="{blkid}.ukvs.gz"'
+        resp.headers["Cache-Control"] = "immutable"
         resp.headers["Link"] = block_links(blkid)
         resp.set_etag(blkid)
         return resp
