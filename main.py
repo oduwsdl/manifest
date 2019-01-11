@@ -5,6 +5,8 @@ import hashlib
 import os
 import re
 
+from datetime import datetime
+
 from flask import Flask, Response, request, make_response, send_from_directory, redirect, abort, render_template
 from werkzeug.routing import BaseConverter
 
@@ -21,6 +23,10 @@ class RegexConverter(BaseConverter):
         self.regex = items[0]
 
 app.url_map.converters['regex'] = RegexConverter
+
+
+def to_rfc1123(dig14):
+    return datetime.strptime(dig14, "%Y%m%d%H%M%S").strftime('%a, %d %b %Y %H:%M:%S GMT')
 
 
 def latest_block():
@@ -56,8 +62,8 @@ def block_links(blkid):
 
 @app.route("/")
 def serve_block_index():
-    blkfs = sorted([os.path.basename(f) for f in glob.glob(f"{BLKDIR}/*.ukvs.gz")], reverse=True)
-    return render_template("index.html", blks=[{"id": bl, "dttm": bl.split('-')[0], "hash": bl.split('.')[0].split('-')[-1]} for bl in blkfs])
+    blkfs = sorted([os.path.basename(f).split(".")[0].split('-') for f in glob.glob(f"{BLKDIR}/*.ukvs.gz")], reverse=True)
+    return render_template("index.html", blks=[{"dttm": to_rfc1123(bl[0]), "prev": bl[1], "crnt": bl[2]} for bl in blkfs])
 
 
 @app.route("/blocks", strict_slashes=False)

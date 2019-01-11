@@ -19,6 +19,30 @@
         padding: 10px;
         font-family: monospace;
       }
+      div.block {
+        border: 3px solid #999;
+        border-radius: 15px;
+        text-align: center;
+        margin: 5px auto 33px auto;
+      }
+      div.terminal {
+        border: 3px dotted #999;
+        border-radius: 5px;
+        text-align: center;
+        margin: 0 auto;
+        max-width: 150px;
+      }
+      div.latest {
+        margin: 5px auto 33px auto;
+      }
+      p.arrow {
+        font-size: 50px;
+        line-height: 0;
+        color: #999;
+        margin: 0 auto;
+        position: relative;
+        top: 23px;
+      }
       h1.branding {
         background: #000;
         color: #fff;
@@ -35,15 +59,27 @@
         padding: 6px;
       }
     </style>
+    <link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAma0AAP+EAAAIAP8AAIIWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIiIiIgREQAAiIiIiBERAACIiIiIARAAAIiIiIgBEAAMAARAAAEQAMwABEAAARAMwIiIiIgBEMwAiIiIiAEMwACIiIiIAMwAAIiIiIgM0AAAAARAAM0QAAAABEAAwRAAAIiIiIgBEAAAiIiIiAEQAACIiIiIABEREIiIiIgAAREQAhwAAAIcAAADPAAAAzgAA58wAAOfJAAAAwwAAAMcAAADPAAAAjwAA5w8AAOdPAAAAzwAAAM8AAADgAAAA8AAA" rel="icon" type="image/x-icon" />
   </head>
   <body>
     <h1 class="branding">Archival Fixity Blocks</h1>
     <div id="wrapper">
-      <ul>
+      <div class="blocks">
+        <div class="terminal latest">
+          <p>LATEST</p>
+          <p class="arrow">↧</p>
+        </div>
         {%- for blk in blks %}
-        <li><a href="/blocks/{{ blk['id'] }}">[{{ blk['dttm'] }}] {{ blk['hash'] }}</a></li>
+        <div class="block">
+          <p><a href="/blocks/{{ blk['crnt'] }}">{{ blk['crnt'] }}</a></p>
+          <p class="datetime">{{ blk['dttm'] }}</p>
+          <p class="arrow">↧</p>
+        </div>
         {%- endfor %}
-      </ul>
+        <div class="terminal last">
+          <p>GENESIS</p>
+        </div>
+      </div>
     </div>
 
     <footer>Archival Fixity Blocks by <a href="https://ws-dl.cs.odu.edu/">Web Science and Digital Libraries Research Group</a> in the <a href="https://odu.edu/compsci">Department of Computer Science</a> at <a href="https://odu.edu/">Old Dominion University</a></footer>
