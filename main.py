@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 MFDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "manifests")
 BLKDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "blocks")
-
+BLKFILE = re.compile("^(?P<dttm>\d{14})-(?P<prev>[a-f0-9]{64})-(?P<crnt>[a-f0-9]{64}).ukvs.gz$")
 
 class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
@@ -26,6 +26,23 @@ app.url_map.converters['regex'] = RegexConverter
 def block_index():
     blkfs = sorted([os.path.basename(f) for f in glob.glob(f"{BLKDIR}/*.ukvs.gz")], reverse=True)
     return render_template("index.html", blks=[{"id": bl, "dttm": bl.split('-')[0], "hash": bl.split('.')[0].split('-')[-1]} for bl in blkfs])
+
+
+@app.route("/blocks", strict_slashes=False)
+def latest_block():
+    ldttm = ""
+    lblkid = ""
+    with os.scandir(BLKDIR) as blkd:
+        for blk in blkd:
+            parts = BLKFILE.match(blk.name)
+            if parts and parts["dttm"] > ldttm:
+                ldttm = parts["dttm"]
+                lblkid = parts["crnt"]
+    if lblkid:
+        res = redirect(f"/blocks/{lblkid}.ukvs.gz")
+        res.autocorrect_location_header = False
+        return res
+    abort(404)
 
 
 @app.route("/blocks/<blkid>")
