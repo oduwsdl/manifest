@@ -45,9 +45,17 @@ def latest_block():
     abort(404)
 
 
-@app.route("/blocks/<blkid>")
-def serve_blocks(blkid):
-    return send_from_directory(BLKDIR, blkid)
+@app.route("/blocks/<blkid>.ukvs.gz")
+def serve_block(blkid):
+    crntblk = glob.glob(f"{BLKDIR}/{'[0-9]'*14}-{'?'*64}-{blkid}.ukvs.gz")
+    if crntblk:
+        crntblkf = os.path.basename(crntblk[0])
+        resp = make_response(send_from_directory(BLKDIR, crntblkf))
+        resp.headers["Content-Type"] = "application/ukvs"
+        resp.headers["Content-Encoding"] = "gzip"
+        resp.set_etag(blkid)
+        return resp
+    abort(404)
 
 
 @app.route("/manifest/<path:urim>", defaults={"mfdt": "9"*14, "mfh": ""})
