@@ -24,7 +24,7 @@ app.url_map.converters['regex'] = RegexConverter
 
 @app.route("/")
 def block_index():
-    blkfs = sorted([os.path.basename(f) for f in glob.glob(f"{BLKDIR}/*.ors.gz")])
+    blkfs = sorted([os.path.basename(f) for f in glob.glob(f"{BLKDIR}/*.ukvs.gz")], reverse=True)
     return render_template("index.html", blks=[{"id": bl, "dttm": bl.split('-')[0], "hash": bl.split('.')[0].split('-')[-1]} for bl in blkfs])
 
 
