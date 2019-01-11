@@ -44,10 +44,10 @@ def block_links(blkid):
             navs["prev"] = prev
     blkp = glob.glob(f"{BLKDIR}/{'[0-9]'*14}-{blkid}-{'?'*64}.ukvs.gz")
     if blkp:
-        navs["next"] = os.path.basename(crntblk[0]).split(".")[0].split("-")[-1]
+        navs["next"] = os.path.basename(blkp[0]).split(".")[0].split("-")[-1]
     blkp = glob.glob(f"{BLKDIR}/{'[0-9]'*14}-{'0'*64}-{'?'*64}.ukvs.gz")
     if blkp:
-        navs["first"] = os.path.basename(crntblk[0]).split(".")[0].split("-")[-1]
+        navs["first"] = os.path.basename(blkp[0]).split(".")[0].split("-")[-1]
     lblkid = latest_block()
     if lblkid:
         navs["last"] = lblkid
@@ -70,9 +70,9 @@ def serve_latest_block():
 
 @app.route("/blocks/<blkid>.ukvs.gz")
 def serve_block(blkid):
-    crntblk = glob.glob(f"{BLKDIR}/{'[0-9]'*14}-{'?'*64}-{blkid}.ukvs.gz")
-    if crntblk:
-        crntblkf = os.path.basename(crntblk[0])
+    blkp = glob.glob(f"{BLKDIR}/{'[0-9]'*14}-{'?'*64}-{blkid}.ukvs.gz")
+    if blkp:
+        crntblkf = os.path.basename(blkp[0])
         resp = make_response(send_from_directory(BLKDIR, crntblkf))
         resp.headers["Content-Type"] = "application/ukvs"
         resp.headers["Content-Encoding"] = "gzip"
