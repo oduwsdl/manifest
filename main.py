@@ -15,7 +15,7 @@ app = Flask(__name__)
 MFDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "manifests")
 BLKDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "blocks")
 BLKFILE = re.compile("^(?P<dttm>\d{14})-(?P<prev>[a-f0-9]{64})-(?P<crnt>[a-f0-9]{64}).ukvs.gz$")
-PROXY = os.getenv("MANIFESTHOST", "http://localhost").strip(" \t\"'/")
+PROXY = os.getenv("MANIFESTHOST", "http://localhost:5000").strip(" \t\"'/")
 
 class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
