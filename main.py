@@ -62,7 +62,7 @@ def block_links(blkid):
 
 @app.after_request
 def after_request(resp):
-    resp.headers["Servver"] = "ArchivalFixity/0.1"
+    resp.headers["Server"] = "ArchivalFixity/0.1"
     return resp
 
 
