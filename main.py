@@ -60,6 +60,12 @@ def block_links(blkid):
     return ", ".join([f'<{PROXY}/blocks/{v}>; rel="{k}"' for k, v in navs.items()])
 
 
+@app.after_request
+def after_request(resp):
+    resp.headers["Servver"] = "ArchivalFixity/0.1"
+    return resp
+
+
 @app.route("/")
 def serve_block_index():
     blkfs = sorted([os.path.basename(f).split(".")[0].split('-') for f in glob.glob(f"{BLKDIR}/*.ukvs.gz")], reverse=True)
